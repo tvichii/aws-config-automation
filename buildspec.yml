@@ -1,0 +1,30 @@
+version: 0.1
+
+phases:
+  install:
+    run-as: root
+    runtime_versions:
+      nodejs: 12
+    commands:
+      - npm install -g aws-cdk
+      - virtualenv -p python3.6 venv
+      - . ./venv/bin/activate
+      - pip install -r requirements.txt
+  build:
+    run-as: root
+    commands:
+      - |
+        cdk synth
+  post_build:
+    run-as: root
+    commands:
+      - |
+        if expr $DEPLOYMENT_STAGE : "dev"; then
+            echo /"Deploying in dev environment./";
+        fi
+        if expr $DEPLOYMENT_STAGE : "prod"; then
+            echo /"Deploying in prod environment./";
+        fi
+      - . ./venv/bin/activate
+      - echo "cdk deploy"
+      - cdk deploy --require-approval never
